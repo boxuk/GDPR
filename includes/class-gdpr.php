@@ -280,6 +280,22 @@ class GDPR {
 		add_action( 'wp', array( $requests_public, 'request_confirmed' ) );
 		add_action( 'wp_ajax_gdpr_send_request_email', array( $requests_public, 'send_request_email' ) );
 		add_action( 'wp_ajax_nopriv_gdpr_send_request_email', array( $requests_public, 'send_request_email' ) );
+
+		add_action( 'init',  [ $this, 'remove_gdpr_plugin_hooks' ] );
+	}
+
+	/**
+	 * Removes any GDPR plugin hooks that will be overridden by custom peake code.
+	 *
+	 * This needs replacing with the real implementation. Consider this a placeholder.
+	 */
+	public function remove_gdpr_plugin_hooks() {
+		remove_action( 'wp', 'GDPR_Requests_Public::request_confirmed' );
+
+		$gdpr_user_delete = new Gdpr_User_Delete();
+		remove_all_actions( 'admin_post_gdpr_delete_user' );
+		add_action( 'admin_post_gdpr_delete_user', [ $gdpr_user_delete, 'delete_user' ] );
+		add_action( 'admin_notices', [ $gdpr_user_delete, 'display_message' ] );
 	}
 
 	/**
