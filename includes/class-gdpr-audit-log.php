@@ -167,12 +167,21 @@ class GDPR_Audit_Log {
 		$path        = $basedir . '/gdpr_logs/';
 		if ( wp_mkdir_p( $path ) ) {
 			if ( ! file_exists( $path . 'index.php' ) ) {
-				wpcom_vip_file_put_contents( $path . 'index.php', '' );
+				if ( function_exists( 'wpcom_vip_file_put_contents' ) ) {
+					wpcom_vip_file_put_contents( $path . 'index.php', '' );
+				} else {
+					file_put_contents( $path . 'index.php', '' );
+				}
 			}
 			$log      = self::get_log( $user->user_email );
 			$filename = self::email_mask( $user->user_email . $token );
 			$filename = base64_encode( $filename );
-			wpcom_vip_file_put_contents( $path . $filename, self::crypt( $user->user_email, $log ) );
+			$encrypted_log_message = self::crypt( $user->user_email, $log );
+			if ( function_exists( 'wpcom_vip_file_put_contents' ) ) {
+				wpcom_vip_file_put_contents( $path . $filename, $encrypted_log_message );
+			} else {
+				file_put_contents( $path . $filename, $encrypted_log_message );
+			}
 		}
 	}
 }
